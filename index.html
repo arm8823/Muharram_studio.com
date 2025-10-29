@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استودیو محرم</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Vazirmatn', sans-serif;
+  }
+
+  body {
+    background: url('bg.jpg') center/cover no-repeat fixed;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    position: relative;
+    transition: backdrop-filter 0.8s ease, filter 0.8s ease;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: -1;
+    transition: background 0.8s ease;
+  }
+
+  body.blurred::before {
+    background: rgba(0,0,0,0.75);
+  }
+
+  body.blurred {
+    backdrop-filter: blur(10px);
+    filter: brightness(0.8);
+  }
+
+  /* ✅ انیمیشن نرم بدون زوم */
+  @keyframes fadeIn3D {
+    0% { opacity: 0; transform: translateY(25px); filter: blur(6px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+
+  .drip-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ff3b3b;
+    text-shadow: 0 4px 12px rgba(255, 0, 0, 0.5), 0 0 25px rgba(255, 50, 50, 0.4);
+    opacity: 0;
+    animation: inkFade 2.5s ease forwards 3s, glowPulse 4s ease-in-out infinite 6s;
+  }
+
+  @keyframes inkFade {
+    0% { opacity: 0; transform: translateY(20px); filter: blur(8px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+
+  @keyframes glowPulse {
+    0%,100% { text-shadow: 0 0 15px rgba(255,0,0,0.4), 0 0 30px rgba(255,0,0,0.3); }
+    50% { text-shadow: 0 0 35px rgba(255,0,0,0.8), 0 0 50px rgba(255,0,0,0.6); }
+  }
+
+  .welcome {
+    font-size: 2rem;
+    text-align: center;
+    opacity: 0;
+    transition: all 2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .welcome.show { opacity: 1; animation: fadeIn3D 2s ease forwards; }
+  .welcome.move-up { transform: translateY(-70px) scale(0.9); font-size: 1.3rem; }
+
+  .button-container {
+    display: flex;
+    gap: 30px;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+  }
+
+  .button-container.show {
+    opacity: 1;
+    animation: fadeIn3D 1.8s ease forwards;
+  }
+
+  .main-btn {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 25px 55px;
+    font-size: 1.4rem;
+    border-radius: 18px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    min-width: 220px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  }
+
+  .main-btn:hover {
+    background: rgba(255, 68, 68, 0.9);
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255,68,68,0.5);
+  }
+
+  .audio-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 85%;
+    max-width: 850px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 25px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.6);
+    opacity: 0;
+    padding: 35px;
+    text-align: center;
+    transition: all 0.5s ease;
+    display: none;
+    z-index: 9999;
+  }
+
+  .audio-container.show {
+    display: block;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .audio-container h2 {
+    color: #ff5555;
+    font-size: 1.9rem;
+    margin-bottom: 20px;
+    text-shadow: 0 3px 10px rgba(255,0,0,0.5);
+  }
+
+  .audio-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+    max-height: 400px; /* حداکثر ارتفاع کانتینر آهنگ‌ها */
+    overflow-y: auto;   /* فعال کردن اسکرول عمودی */
+    padding-right: 10px; /* برای فاصله از scrollbar */
+}
+
+  .glass-box {
+    background: rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 20px;
+    backdrop-filter: blur(12px);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .glass-box:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 6px 30px rgba(255,0,0,0.4);
+  }
+
+  audio {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .back-btn {
+    background: rgba(255, 68, 68, 0.9);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .back-btn:hover {
+    background: rgba(255, 68, 68, 1);
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 600px) {
+    .welcome { font-size: 1.5rem; }
+    .main-btn { font-size: 1.1rem; padding: 20px 35px; }
+    .audio-container { width: 90%; padding: 20px; }
+    .drip-title { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="welcome" id="welcomeText">به سایت استودیو محرم خوش آمدید</div>
+  <div class="drip-title" id="dripTitle">استودیو محرم</div>
+
+  <div class="button-container" id="buttonContainer">
+    <button class="main-btn" onclick="openContainer('systemContainer')">🎧 مداحی‌های سیستمی</button>
+    <button class="main-btn" onclick="openContainer('emotionalContainer')">🫀 مداحی‌های احساسی</button>
+  </div>
+
+  <div class="audio-container" id="systemContainer">
+    <h2>مداحی‌های سیستمی</h2>
+    <div class="audio-list">
+      
+      <div class="glass-box">
+  <h3>1. ام البکا 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/1ca924_25enc-17362543191209545699757.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>2. ضربان قلبم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/3f6624_25Hossein-Sotode-Zarabane-Ghalbam-musicdel-ir.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>3. ذکر الله 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/98f724_25zekr-allah.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>4. از خرابه دیگه بیزارم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/5e1924_25از-خرابه-دیگه-بیزارم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>5. ای وای از قتلگاه 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/def724_25ای-وای-از-قتلگاه202507252231018Part-2.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>6. بر دشمن مرتضی علی لعنت 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/598c24_25بر-دشمن-مرتضی-علی-لعنت.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>7. به نفس نفس 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/164124_25به-نفس-نفس-سینه-زنات.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>8. شیرین‌تر از 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/7a8524_25شیرین-تر-از-بغل-مادر-حرم-حسین.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>9. عباسم و در پی خطر می‌گردم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/fc3324_25عباسم-و-در-پی-خطر-میگردم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>10. قمر سلام 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/ad3a24_25قمر-سلام.mp3" type="audio/mpeg">
+  </audio>
+</div>
+      
+      <div class="glass-box">
+  <h3>11. مجنون 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/ce9b24_25مجنون.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>12. آغازم کربلا 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/8d5724_25نماهنگ-آغازم-کربلا.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>13. آغلارام کربلا 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/fa1224_25نماهنگ-آغلارام-کربلا.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>14. ابو علی 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/41d624_25نماهنگ-ابوعلی.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>15. از تو دست بکشم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/7a5a24_25نماهنگ-از-تو-دست-بکشم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>16. ای جانیم حسین 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/964824_25نماهنگ-ای-جانیم-حسین.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>17. ای عالیجناب کربلا 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/c1b424_25نماهنگ-ای-عالیجناب-کربلا.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>18. ای کعبه سیار من 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/3f6124_25نماهنگ-ای-کعبه-سیار-من.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>19. ایران اباعبدالله 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/00ff24_25نماهنگ-ایران-اباعبدالله.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>20. اینجا کربلا 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/bf2924_25نماهنگ-اینجا-کربلا.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>21. بدون امضای رقیه 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/43fb24_25نماهنگ-بدون-امضای-رقیه.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>22. به فرمان رقیه 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/f96f24_25نماهنگ-به-فرمان-رقیه.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>23. بهترین خاطره 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/460b24_25نماهنگ-بهترین-خاطره.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>24. پیراهن یوسف 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/20e724_25نماهنگ-پیراهن-یوسف.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>25. حال خوب 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/94fa24_25نماهنگ-حال-خوب.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>26. حضرت قاسم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/87bf24_25نماهنگ-حضرت-قاسم-ع-.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>27. حی علی حیدر 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/e2b724_25نماهنگ-حی-علی-حیدر.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>28. حیدریون پادشاه عالمند 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/1fcd24_25نماهنگ-حیدریون-پادشاه-عالمند.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>29. خادمه علی 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/56ea24_25نماهنگ-خادمه-علی.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>30. ذکر جهانی 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/12b124_25نماهنگ-ذکر-جهانی.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>31. راه نجات 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/b15a24_25نماهنگ-راه-نجات.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>32. سبک زندگی 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/2deb24_25نماهنگ-سبک-زندگی.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>33. سنگ کربلا 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/12c824_25نماهنگ-سنگ-کربلا.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>34. عشق ابدی 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/aa3224_25نماهنگ-عشق-ابدی.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>35. عقیله سادات 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/ba2424_25نماهنگ-عقیله-سادات.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>36. قمر 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/d3d724_25نماهنگ-قمر.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>37. ماه بلند 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/ab3124_25نماهنگ-ماه-بلند.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>38. من غلام قمرم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/cfd224_25نماهنگ-من-غلام-قمرم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>39. منو عوض کن 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/855d24_25نماهنگ-منو-عوض-کن.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>40. موذن حرم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/49a424_25نماهنگ-موذن-حرم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>41. نمک گیرم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/9dad24_25نماهنگ-نمک-گیرم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>42. هیبتو برم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/5ca924_25نماهنگ-هیبتو-برم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>43. یکی ما رو ببره کربلا 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/39b524_25نماهنگ-یکی-ما-رو-ببره-کربلا.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>44. یه ساله چشم به راهم 🏴</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/d47124_25یه-ساله-چشم-به-راهم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+      
+    </div>
+    <button class="back-btn" onclick="closeContainer('systemContainer')">← بازگشت</button>
+  </div>
+
+  <div class="audio-container" id="emotionalContainer">
+    <h2>مداحی‌های احساسی</h2>
+    <div class="audio-list">
+      
+      <div class="glass-box">
+  <h3>1. دیگه ندارم من 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/b42024_25Amir-Talajoran-Dige-Nadaram-musicdel-ir.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>2. درد زیاده 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/871724_25enc-16990341131660715504371.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>3. آبرو بردم 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/0eb224_25enc-17002386782180266695799.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>4. حالم بده 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/5ec924_25enc-17037800204642782486045.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>5. دلشوره اربعین 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/92be24_25enc-17233267861871710533032.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>6. میم مثل مادر 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/01d924_25enc-17340203174138337063663.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>7. الی الحسین 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/415524_25نماهنگ-الی-الحسین.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>8. بابای من 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/863624_25نماهنگ-بابای-من.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>9. پرچم حرم 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/3a4c24_25نماهنگ-پرچم-حرم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>10. پناه خسته‌ها 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/403024_25نماهنگ-پناه-خسته-ها.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>11. دریا تر از دریا 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/32e924_25نماهنگ-دریا-تر-از-دریا.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>12. دلبرم 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/621024_25نماهنگ-دلبرم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>13. دلم برات تنگ شده حسین 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/f5d224_25نماهنگ-دلم-برات-تنگ-شده.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>14. دوستت دارم حسین جان 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/675624_25نماهنگ-دوست-دارم-حسین-جان.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>15. رضا جان 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/8ded24_25نماهنگ-رضا-جان.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>16. روضه روزه 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/ca5524_25نماهنگ-روضه-روزه.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>17. فراموش می‌شم 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/aa6d24_25hossein-sotode-faramosh-misham.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>18. کم آوردم 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/4f2624_25نماهنگ-کم-آوردم.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>19. لیلای من 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/91ba24_25نماهنگ-لیلای-من.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>20. معجزه نگاه 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/c2a324_25نماهنگ-معجزه-نگاه.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>21. منو بازی دنیا 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/9b6124_25نماهنگ-منو-بازی-دنیا.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>22. چقدر اسم قشنگ گریه داره 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/eae924_25enc-17406123269960648251552.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="glass-box">
+  <h3>23. تنهاترین سردار 🚩</h3>
+  <audio controls>
+    <source src="https://uploadkon.ir/uploads/5c8524_25Hosein-Sotoode-Tanha-Tarin-Sardar.mp3" type="audio/mpeg">
+  </audio>
+</div>
+      
+    </div>
+    <button class="back-btn" onclick="closeContainer('emotionalContainer')">← بازگشت</button>
+  </div>
+
+<script>
+  const welcomeText = document.getElementById('welcomeText');
+  const dripTitle = document.getElementById('dripTitle');
+  const buttonContainer = document.getElementById('buttonContainer');
+
+  window.onload = () => {
+    const savedContainer = localStorage.getItem('openContainer');
+    const savedTime = localStorage.getItem('openTime');
+
+    // بعد از ۲۴ ساعت ریست بشه
+    if (savedTime && (Date.now() - savedTime > 86400000)) {
+      localStorage.clear();
+    }
+
+    setTimeout(() => welcomeText.classList.add('show'), 800);
+    setTimeout(() => welcomeText.classList.add('move-up'), 3000);
+    setTimeout(() => dripTitle.style.opacity = 1, 4000);
+    setTimeout(() => buttonContainer.classList.add('show'), 5200);
+
+    // باز کردن کانتینر قبلی اگر هنوز معتبره
+    if (savedContainer && savedTime && (Date.now() - savedTime < 86400000)) {
+      setTimeout(() => openContainer(savedContainer, true), 1000);
+    }
+
+    // 🎧 فقط یکی از مداحی‌ها همزمان پخش بشه
+    const audios = document.querySelectorAll("audio");
+    audios.forEach(audio => {
+      audio.addEventListener("play", () => {
+        audios.forEach(other => {
+          if (other !== audio) other.pause();
+        });
+      });
+    });
+  };
+
+  function openContainer(id, skipSave = false) {
+    document.body.classList.add('blurred');
+    const cont = document.getElementById(id);
+    cont.style.display = 'block';
+    setTimeout(() => cont.classList.add('show'), 50);
+
+    if (!skipSave) {
+      localStorage.setItem('openContainer', id);
+      localStorage.setItem('openTime', Date.now());
+    }
+  }
+
+  function closeContainer(id) {
+    document.body.classList.remove('blurred');
+    const cont = document.getElementById(id);
+    cont.classList.remove('show');
+    setTimeout(() => cont.style.display = 'none', 500);
+    localStorage.removeItem('openContainer');
+    localStorage.setItem('openTime', Date.now());
+  }
+</script>
+</body>
+</html>
